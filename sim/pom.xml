@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>sim</groupId>
+    <artifactId>vicsek-sim</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <!--
+            No hay carpeta src/main/java: el codigo vive directamente bajo sim/ (core/, neighbors/,
+            vicsek/, io/, app/), un layout heredado de TP1. javac no exige que la ubicacion del
+            archivo fuente coincida con su package cuando se le pasa la lista completa de fuentes
+            (como hace maven-compiler-plugin), asi que apuntar sourceDirectory a la raiz del
+            proyecto compila igual sin mover ningun archivo existente.
+        -->
+        <sourceDirectory>${project.basedir}</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>25</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <!--
+                    Sin mainClass por defecto: hay dos entry points (GenerateParticlesMain,
+                    SimulateMain), se elige con -Dexec.mainClass en la linea de comandos.
+                -->
+            </plugin>
+        </plugins>
+    </build>
+</project>
