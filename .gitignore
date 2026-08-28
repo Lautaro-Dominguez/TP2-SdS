@@ -2,3 +2,5 @@ output/
 *.png
 *.gif
 
+__pycache__/
+sim/target/
