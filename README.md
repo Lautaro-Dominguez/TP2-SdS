@@ -93,6 +93,33 @@ Salidas:
   tiempo registrado tn+1
   ```
 
+## 3. Analizar (Python)
+
+Todo vive en `analysis/`. Requiere `numpy` y `matplotlib` (`pip install --user numpy matplotlib`).
+Los scripts leen los `.txt` que ya escribe el motor Java — no reimplementan nada de `sim/`. Los que
+barren `η`/densidad (`va_vs_eta.py`, `s_vs_eta.py`, `va_vs_s.py`) invocan `GenerateParticlesMain` /
+`SimulateMain` por vos (vía `run_java.py`) con **azar fresco en cada realización** (`--seeds` es
+la cantidad de repeticiones, no una semilla fija — la reproducibilidad viene de promediar entre
+varias corridas, no de fijar el RNG).
+
+| Script | Punto del enunciado | Qué hace | Ejemplo |
+|---|---|---|---|
+| `animate.py` | a) | Anima una trayectoria ya generada (vector = velocidad, color = ángulo). | `python3 animate.py --traj ../output/trajectory.txt --L 10 --out anim.gif` |
+| `va_vs_t.py` | b) | Superpone `va(t)` de varias corridas para elegir a ojo el `t_start` del estacionario. | `python3 va_vs_t.py --traj traj_eta0.5.txt --label "eta=0.5" --out va_vs_t.png` |
+| `s_vs_t.py` | d) (evolución) | Mismo criterio que `va_vs_t.py`, pero para `S(t)` (`clusters.txt`). | `python3 s_vs_t.py --clusters clusters_eta0.5.txt --label "eta=0.5" --out s_vs_t.png` |
+| `va_vs_eta.py` | c) | `va` vs `η` con error bars, por densidad. | `python3 va_vs_eta.py --densities 2,4,8 --etas 0:5:0.25 --seeds 5 --t-start 150 --iterations 300 --model estandar --out va_vs_eta.png` |
+| `s_vs_eta.py` | d) (gráfico 7) | `S` vs `η` con error bars, mismo criterio que `va_vs_eta.py`. | `python3 s_vs_eta.py --densities 2,4,8 --etas 0:5:0.25 --seeds 5 --t-start 150 --iterations 300 --model estandar --out s_vs_eta.png` |
+| `va_vs_s.py` | e) (gráfico 8) | `va` vs `S`: un punto por `(densidad, η)`, promediados en el estacionario, distinguiendo densidades. | `python3 va_vs_s.py --densities 2,4,8 --etas 0:5:0.25 --seeds 5 --t-start 150 --iterations 300 --model estandar --out va_vs_s.png` |
+| `stationary.py` | — | Helper interno compartido por `s_vs_eta.py`/`va_vs_s.py` (corre cada realización una sola vez para ambos). No se ejecuta directo. |  |
+
+Para el modelo de votante, agregar `--model votante` a cualquiera de los comandos de barrido.
+
+**Densidades bajas para el estudio de clusters**: además de `ρ = 2, 4, 8`, la cátedra sumó
+`ρ = 1/π ≈ 0.3183`, `1/(2π) ≈ 0.1592`, `1/(3π) ≈ 0.1061` (por debajo del umbral de percolación
+continua) para `s_vs_eta.py`/`va_vs_s.py`. A esa escala conviene `--iterations 1000 --t-start 600`
+en vez de `300`/`150` — con tan pocas partículas el "band forming" del modelo de Vicsek tarda más
+en asentarse.
+
 ## Estructura
 
 ```
@@ -101,4 +128,6 @@ sim.neighbors  NeighborFinder, CellIndexMethod, BruteForceMethod, NeighborRecord
 sim.vicsek     AngleModel, StandardAngleModel, VoterAngleModel, VicsekSimulator, ClusterAnalysis
 sim.io         TrajectoryFileWriter/Reader, ClusterSizeFileWriter, CimTimingFileWriter
 sim.app        GenerateParticlesMain, SimulateMain
+analysis       Scripts de Python para animar y graficar (ver sección 3) — vicsek_io.py y run_java.py
+               son utilidades compartidas, no se ejecutan directo
 ```
