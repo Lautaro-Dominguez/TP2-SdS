@@ -61,7 +61,11 @@ def polarization_series(angles):
 
 
 def read_cluster_sizes(path):
-    """S(0..tn) desde clusters.txt (una linea por valor, escrito por
-    sim.io.ClusterSizeFileWriter)."""
+    """Lee el clusters.txt que escribe sim.io.ClusterSizeFileWriter: S(0), S(1), ..., S(tn),
+    una por linea, en el mismo orden 0..tn que los bloques de read_trajectory.
+
+    Devuelve un array S(t) (mismo indice t que el array `ts` de read_trajectory sobre la
+    misma corrida).
+    """
     with open(path) as f:
         return np.array([float(line) for line in f if line.strip()])
