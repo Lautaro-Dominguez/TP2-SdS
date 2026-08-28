@@ -58,26 +58,3 @@ def polarization(theta):
 def polarization_series(angles):
     """va(t) para cada bloque de angulos (uno por t) de una trayectoria."""
     return np.array([polarization(theta) for theta in angles])
-
-
-def steady_state_start(series, window=30, tol=0.02, min_start=0):
-    """Heuristica para detectar el inicio del estado estacionario.
-
-    Compara la media movil de `series` en una ventana de tamano `window` contra la misma
-    media `window` pasos despues; el primer punto donde la variacion relativa entre ambas
-    cae por debajo de `tol` se toma como inicio del estacionario. Pensado para verificarse
-    a ojo con el grafico (por eso los scripts de este paquete siempre marcan t_start con
-    una linea vertical), tal como pide el enunciado.
-    """
-    n = len(series)
-    if n < 2 * window:
-        return max(min_start, n // 2)
-    means = np.array([series[i:i + window].mean() for i in range(n - window + 1)])
-    last_valid = len(means) - window
-    for i in range(min_start, max(min_start, last_valid)):
-        a = means[i]
-        b = means[i + window]
-        denom = abs(a) if abs(a) > 1e-9 else 1e-9
-        if abs(b - a) / denom < tol:
-            return i
-    return max(min_start, n // 2)

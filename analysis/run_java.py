@@ -29,18 +29,16 @@ def _run(main_class, flags):
     return result.stdout
 
 
-def generate_particles(l, density, seed, out):
-    return _run("sim.app.GenerateParticlesMain", {
-        "L": l,
-        "density": density,
-        "seed": seed,
-        "out": out,
-    })
+def generate_particles(l, density, out, seed=None):
+    flags = {"L": l, "density": density, "out": out}
+    if seed is not None:
+        flags["seed"] = seed
+    return _run("sim.app.GenerateParticlesMain", flags)
 
 
-def simulate(eta, iterations, model, rc, l, periodic, speed, seed, infile, outfile,
-             clusters_out, timing_out):
-    return _run("sim.app.SimulateMain", {
+def simulate(eta, iterations, model, rc, l, periodic, speed, infile, outfile,
+             clusters_out, timing_out, seed=None):
+    flags = {
         "eta": eta,
         "iterations": iterations,
         "model": model,
@@ -48,9 +46,11 @@ def simulate(eta, iterations, model, rc, l, periodic, speed, seed, infile, outfi
         "L": l,
         "periodic": str(bool(periodic)).lower(),
         "speed": speed,
-        "seed": seed,
         "in": infile,
         "out": outfile,
         "clustersOut": clusters_out,
         "timingOut": timing_out,
-    })
+    }
+    if seed is not None:
+        flags["seed"] = seed
+    return _run("sim.app.SimulateMain", flags)
