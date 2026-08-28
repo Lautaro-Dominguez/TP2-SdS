@@ -58,3 +58,10 @@ def polarization(theta):
 def polarization_series(angles):
     """va(t) para cada bloque de angulos (uno por t) de una trayectoria."""
     return np.array([polarization(theta) for theta in angles])
+
+
+def read_cluster_sizes(path):
+    """S(0..tn) desde clusters.txt (una linea por valor, escrito por
+    sim.io.ClusterSizeFileWriter)."""
+    with open(path) as f:
+        return np.array([float(line) for line in f if line.strip()])
