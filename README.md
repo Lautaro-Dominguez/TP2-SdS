@@ -120,6 +120,28 @@ continua) para `s_vs_eta.py`/`va_vs_s.py`. A esa escala conviene `--iterations 1
 en vez de `300`/`150` — con tan pocas partículas el "band forming" del modelo de Vicsek tarda más
 en asentarse.
 
+## 4. Scripts de barrido (`sim/`)
+
+Automatizan los pasos 1-3 para el barrido `densidad ∈ {2, 4, 8} × η ∈ {0.5, 2, 8} × modelo ∈
+{estandar, votante}` (18 combinaciones), `L=10`, `rc=1`, `iterations=500`. Se corren desde
+`sim/` (hacen `cd` a su propio directorio, así que también andan invocados con path absoluto).
+
+| Script | Qué hace | Uso |
+|---|---|---|
+| `simexec.sh` | Pasos 1+2: para cada una de las 18 combinaciones, genera partículas y simula, escribiendo `output/trajectory{N}.txt`, `clusters{N}.txt`, `timing{N}.txt`. | `./simexec.sh` |
+| `analyzeexec.sh` | Lee esos 18 archivos (no simula nada nuevo) y corre `va_vs_t.py`/`s_vs_t.py`: una imagen por `(densidad, modelo)` — 6 combinaciones — superponiendo las 3 curvas de `η`. También corre `animate.py` por corrida si `RUN_ANIMATIONS=true` (apagado por default, son 18 GIFs pesados). | `./analyzeexec.sh` |
+| `analyzeexec_eta.sh` | Corre `va_vs_eta.py`/`s_vs_eta.py`/`va_vs_s.py`: simulan desde cero (no leen los archivos de `simexec.sh`) barriendo `η` con `--etas 0:8:0.5` (editable como `ETA_SWEEP` en el script), una imagen por modelo superponiendo las 3 densidades. Necesita el `t_start` del estado estacionario, elegido a ojo mirando los `va_vs_t_*.png`/`s_vs_t_*.png` que generó `analyzeexec.sh` — por eso se corre aparte y recibe ese valor como argumento. | `./analyzeexec_eta.sh <t_start>` (ej. `./analyzeexec_eta.sh 250`) |
+
+**Numeración**: `simexec.sh` y `analyzeexec.sh` (para las animaciones) numeran los archivos con
+`N = densidad_idx*6 + eta_idx*2 + modelo_idx + 1` (índices 0-based, en ese orden de anidado:
+densidad afuera, η en el medio, modelo adentro — mismo orden que barren los `for` de ambos
+scripts). `analyzeexec.sh` (para `va_vs_t`/`s_vs_t`) y `analyzeexec_eta.sh` no numeran sus
+salidas porque cada imagen ya agrupa varias corridas (varios `N`): las nombran por
+`densidad`/`modelo` en su lugar (`va_vs_t_d2_estandar.png`, `va_vs_eta_votante.png`, etc).
+
+Orden de uso: `simexec.sh` → `analyzeexec.sh` → mirar los `va_vs_t_*.png`/`s_vs_t_*.png` para
+elegir `t_start` → `analyzeexec_eta.sh <t_start>`.
+
 ## Estructura
 
 ```
@@ -130,4 +152,7 @@ sim.io         TrajectoryFileWriter/Reader, ClusterSizeFileWriter, CimTimingFile
 sim.app        GenerateParticlesMain, SimulateMain
 analysis       Scripts de Python para animar y graficar (ver sección 3) — vicsek_io.py y run_java.py
                son utilidades compartidas, no se ejecutan directo
+sim/simexec.sh          Barrido de generación+simulación (ver sección 4)
+sim/analyzeexec.sh      Barrido de va_vs_t/s_vs_t (+ animaciones opcionales) (ver sección 4)
+sim/analyzeexec_eta.sh  Barrido de va_vs_eta/s_vs_eta/va_vs_s (ver sección 4)
 ```
